@@ -138,6 +138,7 @@ mkdir -p docs
 mkdir -p _project_specs/features
 mkdir -p _project_specs/todos
 mkdir -p _project_specs/prompts
+mkdir -p _project_specs/session/archive
 mkdir -p scripts
 ```
 
@@ -147,6 +148,7 @@ mkdir -p scripts
 - `base.md` → `.claude/skills/base.md`
 - `security.md` → `.claude/skills/security.md`
 - `project-tooling.md` → `.claude/skills/project-tooling.md`
+- `session-management.md` → `.claude/skills/session-management.md`
 
 **Based on language:**
 - Python → copy `python.md`
@@ -331,6 +333,7 @@ Read and follow these skills before writing any code:
 - .claude/skills/base.md
 - .claude/skills/security.md
 - .claude/skills/project-tooling.md
+- .claude/skills/session-management.md
 - .claude/skills/[language].md
 - .claude/skills/[framework].md (if applicable)
 - .claude/skills/llm-patterns.md (if AI-first)
@@ -385,6 +388,50 @@ All work is tracked in `_project_specs/todos/`:
 - `completed.md` - Done (for reference)
 
 Every todo must have validation criteria and test cases. See base.md skill for format.
+
+## Session Management
+
+### State Tracking
+Maintain session state in `_project_specs/session/`:
+- `current-state.md` - Live session state (update every 15-20 tool calls)
+- `decisions.md` - Key architectural/implementation decisions (append-only)
+- `code-landmarks.md` - Important code locations for quick reference
+- `archive/` - Past session summaries
+
+### Automatic Updates
+Update `current-state.md`:
+- After completing any todo item
+- Every 15-20 tool calls during active work
+- Before any significant context shift
+- When encountering blockers
+
+### Decision Logging
+Log to `decisions.md` when:
+- Choosing between architectural approaches
+- Selecting libraries or tools
+- Making security-related choices
+- Deviating from standard patterns
+
+### Context Compression
+When context feels heavy (~50+ tool calls):
+1. Summarize completed work in current-state.md
+2. Archive verbose exploration notes to archive/
+3. Keep only essential context for next steps
+
+### Session Handoff
+When ending a session or approaching context limits, update current-state.md with:
+- What was completed this session
+- Current state of work
+- Immediate next steps (numbered, specific)
+- Open questions or blockers
+- Files to review first when resuming
+
+### Resuming Work
+When starting a new session:
+1. Read `_project_specs/session/current-state.md`
+2. Check `_project_specs/todos/active.md`
+3. Review recent entries in `decisions.md` if context needed
+4. Continue from "Next Steps" in current-state.md
 
 ## Project-Specific Patterns
 [Any specific patterns for this project]
@@ -443,6 +490,102 @@ Done items for reference. Move here from active.md when complete.
 ---
 
 <!-- Add completed todos here -->
+```
+
+**_project_specs/session/current-state.md** (if missing):
+```markdown
+# Current Session State
+
+*Last updated: [timestamp]*
+
+## Active Task
+[What are we working on right now - one sentence]
+
+## Current Status
+- **Phase**: exploring | planning | implementing | testing | debugging
+- **Progress**: [X of Y steps, or description]
+- **Blocking Issues**: None
+
+## Context Summary
+[2-3 sentences summarizing current state of work]
+
+## Files Being Modified
+| File | Status | Notes |
+|------|--------|-------|
+| - | - | - |
+
+## Next Steps
+1. [ ] First next action
+2. [ ] Second next action
+
+## Key Context to Preserve
+- [Important decisions or context for this task]
+
+## Resume Instructions
+To continue this work:
+1. [Specific starting point]
+2. [What to check/read first]
+```
+
+**_project_specs/session/decisions.md** (if missing):
+```markdown
+# Decision Log
+
+Track key architectural and implementation decisions. Append-only - never delete entries.
+
+Format:
+```
+## [YYYY-MM-DD] Decision Title
+
+**Decision**: What was decided
+**Context**: Why this decision was needed
+**Options Considered**: What alternatives existed
+**Choice**: Which option was chosen
+**Reasoning**: Why this choice was made
+**Trade-offs**: What we gave up
+**References**: Related code/docs
+```
+
+---
+
+<!-- Add decisions below -->
+```
+
+**_project_specs/session/code-landmarks.md** (if missing):
+```markdown
+# Code Landmarks
+
+Quick reference to important parts of the codebase. Update as the project evolves.
+
+## Entry Points
+| Location | Purpose |
+|----------|---------|
+| - | Main application entry |
+
+## Core Business Logic
+| Location | Purpose |
+|----------|---------|
+| - | - |
+
+## Configuration
+| Location | Purpose |
+|----------|---------|
+| - | Environment/app config |
+
+## Key Patterns
+| Pattern | Example Location | Notes |
+|---------|------------------|-------|
+| - | - | - |
+
+## Testing
+| Location | Purpose |
+|----------|---------|
+| tests/ | Test files |
+
+## Gotchas & Non-Obvious Behavior
+| Location | Issue | Notes |
+|----------|-------|-------|
+| - | - | - |
 ```
 
 ### Step 9: Create/update GitHub Actions workflows
