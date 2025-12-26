@@ -8,9 +8,56 @@ For maintaining context across long development sessions and enabling seamless r
 
 ## Core Principle
 
-**Checkpoint often, resume instantly.**
+**Checkpoint at natural breakpoints, resume instantly.**
 
 Long development sessions risk context loss. Proactively document state, decisions, and progress so any session can resume exactly where it left off - whether returning after a break or hitting context limits.
+
+---
+
+## Tiered Summarization Rules
+
+### Tier 1: Quick Update (current-state.md only)
+**Trigger**: After completing any small task or todo item
+**Action**: Update "Active Task", "Progress", and "Next Steps" sections
+**Time**: ~30 seconds
+
+### Tier 2: Full Checkpoint (current-state.md + decisions.md)
+**Trigger**:
+- After completing a feature or significant change
+- After any architectural/library decision
+- After ~20 tool calls during active work
+- When switching to a different area of the codebase
+
+**Action**:
+1. Update full current-state.md
+2. Log any decisions to decisions.md
+3. Update files being modified table
+
+### Tier 3: Session Archive (archive/ + full checkpoint)
+**Trigger**:
+- End of work session
+- Completing a major feature/milestone
+- Before a significant context shift
+- When context feels heavy (~50+ tool calls)
+
+**Action**:
+1. Create archive entry: `archive/YYYY-MM-DD[-topic].md`
+2. Full checkpoint
+3. Clear verbose notes from current-state.md
+4. Update code-landmarks.md if new patterns introduced
+
+### Decision Heuristic
+```
+┌─────────────────────────────────────────────────────┐
+│ After completing work, ask:                         │
+├─────────────────────────────────────────────────────┤
+│ Was a decision made?        → Log to decisions.md   │
+│ Task took >10 tool calls?   → Full Checkpoint       │
+│ Major feature complete?     → Archive               │
+│ Ending session?             → Archive + Handoff     │
+│ Otherwise                   → Quick Update          │
+└─────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -207,68 +254,57 @@ Add this section to CLAUDE.md:
 ```markdown
 ## Session Management
 
-### Automatic State Updates
-Update `_project_specs/session/current-state.md`:
-- Every 15-20 tool calls
-- After completing any todo item
-- Before any significant context shift
-- When encountering blockers
+**IMPORTANT**: Follow session-management.md skill. Update session state at natural breakpoints.
 
-### Decision Logging
-Log to `_project_specs/session/decisions.md` when:
-- Choosing between architectural approaches
-- Selecting libraries or tools
-- Making security-related choices
-- Deviating from standard patterns
+### After Every Task Completion
+Ask yourself:
+1. Was a decision made? → Log to `decisions.md`
+2. Did this take >10 tool calls? → Full checkpoint to `current-state.md`
+3. Is a major feature complete? → Create archive entry
+4. Otherwise → Quick update to `current-state.md`
 
-### Context Compression Triggers
-When context feels heavy or after ~50 tool calls:
-1. Summarize completed work in current-state.md
-2. Archive verbose exploration notes
-3. Keep only essential context for next steps
+### Checkpoint Triggers
+**Quick Update** (current-state.md):
+- After any todo completion
+- After small changes
 
-### Session Handoff Format
-When ending a session or hitting context limits, create handoff:
-```text
-## Session Handoff - [timestamp]
+**Full Checkpoint** (current-state.md + decisions.md):
+- After significant changes
+- After ~20 tool calls
+- After any decision
+- When switching focus areas
 
-### Completed This Session
-- [bullet points of what was done]
+**Archive** (archive/ + full checkpoint):
+- End of session
+- Major feature complete
+- Context feels heavy
 
-### Current State
-- [where things stand now]
-
-### Immediate Next Steps
-1. [specific next action]
-2. [following action]
-
-### Open Questions
-- [any unresolved questions]
-
-### Files to Review First
-- [list of relevant files with line numbers]
-```
-
-### Resuming Work
-When starting a new session:
+### Session Start Protocol
+When beginning work:
 1. Read `_project_specs/session/current-state.md`
 2. Check `_project_specs/todos/active.md`
-3. Review recent entries in `decisions.md` if context needed
-4. Continue from "Next Steps" in current-state.md
+3. Review recent `decisions.md` entries if needed
+4. Continue from "Next Steps"
+
+### Session End Protocol
+Before ending or when context limit approaches:
+1. Create archive: `_project_specs/session/archive/YYYY-MM-DD.md`
+2. Update current-state.md with handoff format
+3. Ensure next steps are specific and actionable
 ```
 
 ---
 
 ## Compression Strategies
 
-### When to Compress
+### When to Compress (Tier 3 Archive)
 
 | Trigger | Action |
 |---------|--------|
-| 50+ tool calls | Summarize progress, clear exploration notes |
-| Task complete | Archive task details, update landmarks |
-| Context shift | Summarize previous context, start fresh notes |
-| End of day | Full session handoff |
+| ~50+ tool calls | Summarize progress, archive verbose notes |
+| Major feature complete | Archive feature details, update landmarks |
+| Context shift | Summarize previous context, archive, start fresh |
+| End of session | Full session handoff with archive |
 
 ### What to Keep vs Archive
 
@@ -399,6 +435,54 @@ session-archive() {
 
 ---
 
+## Enforcement Mechanisms
+
+### 1. CLAUDE.md as Entry Point
+CLAUDE.md must reference session-management.md in the Skills section. Claude reads CLAUDE.md first, which directs it to follow session rules.
+
+### 2. Session File Headers with Reminders
+Include enforcement reminders in session file headers:
+
+**current-state.md header:**
+```markdown
+<!--
+CHECKPOINT RULES (from session-management.md):
+- Quick update: After any todo completion
+- Full checkpoint: After ~20 tool calls or decisions
+- Archive: End of session or major feature complete
+-->
+```
+
+### 3. Self-Check Questions
+After completing any task, Claude should ask:
+```
+□ Did I make a decision? → Log it
+□ Did this take >10 tool calls? → Full checkpoint
+□ Is a feature complete? → Archive
+□ Am I ending/switching context? → Archive + handoff
+```
+
+### 4. Session Start Verification
+When starting a session, Claude must:
+1. Check if `current-state.md` exists and read it
+2. Announce what it found: "Resuming from: [last state]"
+3. Confirm next steps before proceeding
+
+### 5. Periodic Self-Audit
+Every ~20 tool calls, Claude should check:
+- Is current-state.md up to date?
+- Are there unlogged decisions?
+- Is context getting heavy?
+
+### 6. User Prompts
+Users can enforce by asking:
+- "Update session state" → Triggers checkpoint
+- "What's the current state?" → Claude reads and reports
+- "End session" → Triggers archive + handoff
+- "Resume from last session" → Claude reads state files first
+
+---
+
 ## Anti-Patterns
 
 - **No state tracking** - Flying blind, can't resume
@@ -408,3 +492,30 @@ session-archive() {
 - **No code landmarks** - Wastes time re-discovering the codebase
 - **Never archiving** - Session files become cluttered
 - **Ignoring compression signals** - Context overload degrades performance
+- **Skipping checkpoint after decisions** - Key context lost
+- **No handoff at session end** - Next session starts blind
+
+---
+
+## Quick Reference
+
+### Checkpoint Decision Tree
+```
+Task completed?
+    │
+    ├── Decision made? ──────────────────→ Log to decisions.md
+    │
+    ├── >10 tool calls OR significant? ──→ Full Checkpoint
+    │
+    ├── Major feature done? ─────────────→ Archive
+    │
+    └── Otherwise ───────────────────────→ Quick Update
+```
+
+### Files at a Glance
+| File | Update Frequency | Purpose |
+|------|------------------|---------|
+| current-state.md | Every task | Live state, next steps |
+| decisions.md | When deciding | Architectural choices |
+| code-landmarks.md | When patterns change | Code navigation |
+| archive/*.md | End of session/feature | Historical record |

@@ -494,6 +494,15 @@ Done items for reference. Move here from active.md when complete.
 
 **_project_specs/session/current-state.md** (if missing):
 ```markdown
+<!--
+CHECKPOINT RULES (from session-management.md):
+- Quick update: After any todo completion
+- Full checkpoint: After ~20 tool calls or decisions
+- Archive: End of session or major feature complete
+
+After each task, ask: Decision made? >10 tool calls? Feature done?
+-->
+
 # Current Session State
 
 *Last updated: [timestamp]*
@@ -529,11 +538,21 @@ To continue this work:
 
 **_project_specs/session/decisions.md** (if missing):
 ```markdown
+<!--
+LOG DECISIONS WHEN:
+- Choosing between architectural approaches
+- Selecting libraries or tools
+- Making security-related choices
+- Deviating from standard patterns
+
+This is append-only. Never delete entries.
+-->
+
 # Decision Log
 
-Track key architectural and implementation decisions. Append-only - never delete entries.
+Track key architectural and implementation decisions.
 
-Format:
+## Format
 ```
 ## [YYYY-MM-DD] Decision Title
 
@@ -553,9 +572,18 @@ Format:
 
 **_project_specs/session/code-landmarks.md** (if missing):
 ```markdown
+<!--
+UPDATE WHEN:
+- Adding new entry points or key files
+- Introducing new patterns
+- Discovering non-obvious behavior
+
+Helps quickly navigate the codebase when resuming work.
+-->
+
 # Code Landmarks
 
-Quick reference to important parts of the codebase. Update as the project evolves.
+Quick reference to important parts of the codebase.
 
 ## Entry Points
 | Location | Purpose |

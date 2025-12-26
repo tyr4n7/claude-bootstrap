@@ -92,6 +92,11 @@ project/
 │   │   ├── active.md          # Current sprint/focus
 │   │   ├── backlog.md         # Future work
 │   │   └── completed.md       # Done items (for reference)
+│   ├── session/               # Session state (see session-management.md)
+│   │   ├── current-state.md   # Live session state
+│   │   ├── decisions.md       # Key decisions log
+│   │   ├── code-landmarks.md  # Important code locations
+│   │   └── archive/           # Past session summaries
 │   └── prompts/               # LLM prompt specifications (if AI-first)
 └── CLAUDE.md                  # Claude instructions (references skills)
 ```
@@ -102,6 +107,7 @@ project/
 |----------|---------|
 | `docs/` | Technical documentation, API refs, setup guides |
 | `_project_specs/` | Business logic, features, requirements, todos |
+| `_project_specs/session/` | Session state, decisions, context for resumability |
 | `CLAUDE.md` | Claude-specific instructions and skill references |
 
 ---
@@ -227,6 +233,30 @@ This catches issues before they hit CI, saving time and keeping the main branch 
 
 ---
 
+## Session Management (Non-Negotiable)
+
+Maintain context for resumability. See `session-management.md` for full details.
+
+### Core Rule: Checkpoint at Natural Breakpoints
+
+After completing any task, ask:
+1. **Decision made?** → Log to `_project_specs/session/decisions.md`
+2. **>10 tool calls?** → Full checkpoint to `current-state.md`
+3. **Major feature done?** → Archive to `session/archive/`
+4. **Otherwise** → Quick update to `current-state.md`
+
+### Session Start
+1. Read `_project_specs/session/current-state.md`
+2. Check `_project_specs/todos/active.md`
+3. Continue from documented "Next Steps"
+
+### Session End
+1. Archive current session
+2. Update `current-state.md` with handoff notes
+3. Ensure next steps are specific and actionable
+
+---
+
 ## Response Format
 
 When implementing features:
@@ -235,5 +265,6 @@ When implementing features:
 3. Implement incrementally - small, testable chunks
 4. Write tests alongside code
 5. Flag complexity - warn if approaching limits
+6. **Checkpoint after completing** - update session state
 
 When you notice code violating these rules, **stop and refactor** before continuing.
