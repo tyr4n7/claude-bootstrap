@@ -1,6 +1,101 @@
-# UI Design Skill
+# UI Design Skill (Web)
 
-*Load with: base.md + react-web.md (or react-native.md)*
+*Load with: base.md + react-web.md*
+
+---
+
+## MANDATORY: WCAG 2.1 AA Compliance
+
+**These rules are NON-NEGOTIABLE. Every UI element must pass these checks.**
+
+### 1. Color Contrast (CRITICAL)
+```
+Text Contrast Requirements:
+├── Normal text (<18px): 4.5:1 minimum
+├── Large text (≥18px bold or ≥24px): 3:1 minimum
+├── UI components (buttons, inputs): 3:1 minimum
+└── Focus indicators: 3:1 minimum
+
+FORBIDDEN COLOR COMBINATIONS:
+✗ gray-400 on white (#9CA3AF on #FFFFFF = 2.6:1) - FAILS
+✗ gray-500 on white (#6B7280 on #FFFFFF = 4.6:1) - BARELY PASSES
+✗ white on yellow - FAILS
+✗ light blue on white - USUALLY FAILS
+
+SAFE COLOR COMBINATIONS:
+✓ gray-700 on white (#374151 on #FFFFFF = 9.2:1)
+✓ gray-600 on white (#4B5563 on #FFFFFF = 6.4:1)
+✓ gray-900 on white (#111827 on #FFFFFF = 16:1)
+✓ white on gray-900, blue-600, green-700
+```
+
+### 2. Visibility Rules (CRITICAL)
+```
+ALL BUTTONS MUST HAVE:
+✓ Visible background color OR visible border (min 1px)
+✓ Text color that contrasts with background
+✓ Minimum height: 44px (touch target)
+✓ Padding: at least px-4 py-2
+
+NEVER CREATE:
+✗ Buttons with transparent background AND no border
+✗ Text same color as background
+✗ Ghost buttons without visible borders
+✗ White text on light backgrounds
+✗ Dark text on dark backgrounds
+```
+
+### 3. Required Element Styles
+```tsx
+// EVERY button needs visible boundaries
+// PRIMARY: solid background
+<button className="bg-gray-900 text-white px-4 py-3 rounded-lg">
+  Primary
+</button>
+
+// SECONDARY: visible background
+<button className="bg-gray-100 text-gray-900 px-4 py-3 rounded-lg">
+  Secondary
+</button>
+
+// GHOST: MUST have visible border
+<button className="border border-gray-300 text-gray-700 px-4 py-3 rounded-lg">
+  Ghost
+</button>
+
+// NEVER DO THIS:
+<button className="text-gray-500">Invisible Button</button> // ✗ NO BOUNDARY
+<button className="bg-white text-white">Hidden</button>     // ✗ NO CONTRAST
+```
+
+### 4. Focus States (REQUIRED)
+```tsx
+// EVERY interactive element needs visible focus
+className="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+
+// NEVER remove focus without replacement
+className="outline-none" // ✗ FORBIDDEN without ring replacement
+```
+
+### 5. Dark Mode Contrast
+```
+When implementing dark mode:
+├── Text must be light (gray-100 to white) on dark backgrounds
+├── Borders must be visible (gray-700 or lighter)
+├── Never use gray-400 text on gray-900 bg (fails contrast)
+└── Test BOTH modes before shipping
+
+SAFE DARK MODE TEXT:
+✓ text-white on bg-gray-900
+✓ text-gray-100 on bg-gray-800
+✓ text-gray-200 on bg-gray-900
+
+UNSAFE (FAILS CONTRAST):
+✗ text-gray-500 on bg-gray-900 (2.4:1)
+✗ text-gray-400 on bg-gray-800 (3.1:1)
+```
+
+---
 
 ## Core Philosophy
 
