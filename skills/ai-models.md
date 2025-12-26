@@ -2,6 +2,8 @@
 
 *Load with: base.md + llm-patterns.md*
 
+**Last Updated: December 2025**
+
 ## Philosophy
 
 **Use the right model for the job.** Bigger isn't always better - match model capabilities to task requirements. Consider cost, latency, and accuracy tradeoffs.
@@ -10,13 +12,13 @@
 
 | Task | Recommended | Why |
 |------|-------------|-----|
-| Complex reasoning | Claude Opus, GPT-4o, Gemini Ultra | Highest accuracy |
-| Fast chat/completion | Claude Haiku, GPT-4o-mini, Gemini Flash | Low latency, cheap |
-| Code generation | Claude Sonnet, GPT-4o, Codestral | Good balance |
-| Vision/images | Claude Sonnet, GPT-4o, Gemini Pro | Multimodal |
+| Complex reasoning | Claude Opus 4.5, o3, Gemini 3 Pro | Highest accuracy |
+| Fast chat/completion | Claude Haiku, GPT-4.1 mini, Gemini Flash | Low latency, cheap |
+| Code generation | Claude Sonnet 4.5, Codestral, GPT-4.1 | Strong coding |
+| Vision/images | Claude Sonnet, GPT-4o, Gemini 3 Pro | Multimodal |
 | Embeddings | text-embedding-3-small, Voyage | Cost-effective |
-| Voice synthesis | Eleven Labs, OpenAI TTS | Natural sounding |
-| Image generation | DALL-E 3, Stable Diffusion, Flux | Different styles |
+| Voice synthesis | Eleven Labs v3, OpenAI TTS | Natural sounding |
+| Image generation | FLUX.2, DALL-E 3, SD 3.5 | Different styles |
 
 ---
 
@@ -24,19 +26,22 @@
 
 ### Documentation
 - **API Docs**: https://docs.anthropic.com
-- **Model Overview**: https://docs.anthropic.com/en/docs/about-claude/models
+- **Models Overview**: https://docs.anthropic.com/en/docs/about-claude/models/overview
 - **Pricing**: https://www.anthropic.com/pricing
 
-### Latest Models (Dec 2024)
+### Latest Models (December 2025)
 
 ```typescript
-// Claude model IDs
 const CLAUDE_MODELS = {
   // Flagship - highest capability
-  opus: 'claude-sonnet-4-20250514',
+  opus: 'claude-opus-4-5-20251101',
 
   // Balanced - best for most tasks
-  sonnet: 'claude-sonnet-4-20250514',
+  sonnet: 'claude-sonnet-4-5-20250929',
+
+  // Previous generation (still excellent)
+  opus4: 'claude-opus-4-20250514',
+  sonnet4: 'claude-sonnet-4-20250514',
 
   // Fast & cheap - high volume tasks
   haiku: 'claude-haiku-3-5-20241022',
@@ -52,7 +57,7 @@ const anthropic = new Anthropic({
 });
 
 const response = await anthropic.messages.create({
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-4-5-20250929',
   max_tokens: 1024,
   messages: [
     { role: 'user', content: 'Hello, Claude!' }
@@ -62,13 +67,13 @@ const response = await anthropic.messages.create({
 
 ### Model Selection
 ```
-claude-sonnet-4-20250514 (Opus 4)
+claude-opus-4-5-20251101 (Opus 4.5)
 ├── Best for: Complex analysis, research, nuanced writing
 ├── Context: 200K tokens
-├── Cost: $15/$75 per 1M tokens (input/output)
+├── Cost: $5/$25 per 1M tokens (input/output)
 └── Use when: Accuracy matters most
 
-claude-sonnet-4-20250514 (Sonnet 4)
+claude-sonnet-4-5-20250929 (Sonnet 4.5)
 ├── Best for: Code, general tasks, balanced performance
 ├── Context: 200K tokens
 ├── Cost: $3/$15 per 1M tokens
@@ -90,21 +95,27 @@ claude-haiku-3-5-20241022 (Haiku 3.5)
 - **Models**: https://platform.openai.com/docs/models
 - **Pricing**: https://openai.com/pricing
 
-### Latest Models (Dec 2024)
+### Latest Models (December 2025)
 
 ```typescript
 const OPENAI_MODELS = {
-  // Flagship multimodal
-  gpt4o: 'gpt-4o',
-  gpt4oLatest: 'gpt-4o-2024-11-20',
+  // GPT-5 series (latest)
+  gpt5: 'gpt-5.2',
+  gpt5Mini: 'gpt-5-mini',
 
-  // Fast & cheap
+  // GPT-4.1 series (recommended for most)
+  gpt41: 'gpt-4.1',
+  gpt41Mini: 'gpt-4.1-mini',
+  gpt41Nano: 'gpt-4.1-nano',
+
+  // Reasoning models (o-series)
+  o3: 'o3',
+  o3Pro: 'o3-pro',
+  o4Mini: 'o4-mini',
+
+  // Legacy but still useful
+  gpt4o: 'gpt-4o',           // Still has audio support
   gpt4oMini: 'gpt-4o-mini',
-
-  // Reasoning (chain of thought)
-  o1: 'o1',
-  o1Mini: 'o1-mini',
-  o1Preview: 'o1-preview',
 
   // Embeddings
   embeddingSmall: 'text-embedding-3-small',
@@ -112,12 +123,11 @@ const OPENAI_MODELS = {
 
   // Image generation
   dalle3: 'dall-e-3',
+  gptImage: 'gpt-image-1',
 
-  // Text to speech
+  // Audio
   tts: 'tts-1',
   ttsHd: 'tts-1-hd',
-
-  // Speech to text
   whisper: 'whisper-1',
 } as const;
 ```
@@ -132,7 +142,7 @@ const openai = new OpenAI({
 
 // Chat completion
 const response = await openai.chat.completions.create({
-  model: 'gpt-4o',
+  model: 'gpt-4.1',
   messages: [
     { role: 'user', content: 'Hello!' }
   ],
@@ -140,7 +150,7 @@ const response = await openai.chat.completions.create({
 
 // With vision
 const visionResponse = await openai.chat.completions.create({
-  model: 'gpt-4o',
+  model: 'gpt-4.1',
   messages: [
     {
       role: 'user',
@@ -161,23 +171,29 @@ const embedding = await openai.embeddings.create({
 
 ### Model Selection
 ```
-gpt-4o
-├── Best for: General tasks, vision, multimodal
-├── Context: 128K tokens
-├── Cost: $2.50/$10 per 1M tokens
-└── Use when: Need vision or balanced performance
-
-gpt-4o-mini
-├── Best for: High-volume, simple tasks
-├── Context: 128K tokens
-├── Cost: $0.15/$0.60 per 1M tokens
-└── Use when: Cost-sensitive applications
-
-o1 / o1-mini
-├── Best for: Math, coding, complex reasoning
+o3 / o3-pro
+├── Best for: Math, coding, complex multi-step reasoning
 ├── Context: 200K tokens
-├── Cost: $15/$60 (o1), $3/$12 (o1-mini)
-└── Use when: Multi-step reasoning required
+├── Cost: Premium pricing
+└── Use when: Hardest problems, need chain-of-thought
+
+gpt-4.1
+├── Best for: General tasks, coding, instruction following
+├── Context: 1M tokens (!)
+├── Cost: Lower than GPT-4o
+└── Use when: Default choice, replaces GPT-4o
+
+gpt-4.1-mini / gpt-4.1-nano
+├── Best for: High-volume, cost-sensitive
+├── Context: 1M tokens
+├── Cost: Very low
+└── Use when: Simple tasks at scale
+
+o4-mini
+├── Best for: Fast reasoning at low cost
+├── Context: 200K tokens
+├── Cost: Budget reasoning
+└── Use when: Need reasoning but cost-conscious
 ```
 
 ---
@@ -189,24 +205,26 @@ o1 / o1-mini
 - **Models**: https://ai.google.dev/gemini-api/docs/models/gemini
 - **Pricing**: https://ai.google.dev/pricing
 
-### Latest Models (Dec 2024)
+### Latest Models (December 2025)
 
 ```typescript
 const GEMINI_MODELS = {
-  // Flagship
-  pro: 'gemini-1.5-pro',
-  proLatest: 'gemini-1.5-pro-latest',
+  // Gemini 3 (Latest)
+  gemini3Pro: 'gemini-3-pro-preview',
+  gemini3ProImage: 'gemini-3-pro-image-preview',
+  gemini3Flash: 'gemini-3-flash-preview',
 
-  // Fast
-  flash: 'gemini-1.5-flash',
-  flashLatest: 'gemini-1.5-flash-latest',
+  // Gemini 2.5 (Stable)
+  gemini25Pro: 'gemini-2.5-pro',
+  gemini25Flash: 'gemini-2.5-flash',
+  gemini25FlashLite: 'gemini-2.5-flash-lite',
 
-  // Compact
-  flash8b: 'gemini-1.5-flash-8b',
+  // Specialized
+  gemini25FlashTTS: 'gemini-2.5-flash-preview-tts',
+  gemini25FlashAudio: 'gemini-2.5-flash-native-audio-preview-12-2025',
 
-  // Experimental
-  exp: 'gemini-exp-1206',
-  thinking: 'gemini-2.0-flash-thinking-exp',
+  // Previous generation
+  gemini2Flash: 'gemini-2.0-flash',
 } as const;
 ```
 
@@ -215,13 +233,13 @@ const GEMINI_MODELS = {
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 const result = await model.generateContent('Hello!');
 const response = result.response.text();
 
 // With vision
-const visionModel = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+const visionModel = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
 const imagePart = {
   inlineData: {
     data: base64Image,
@@ -233,23 +251,29 @@ const result = await visionModel.generateContent(['Describe this:', imagePart]);
 
 ### Model Selection
 ```
-gemini-1.5-pro
-├── Best for: Complex tasks, long context
-├── Context: 2M tokens (!)
-├── Cost: $1.25/$5 per 1M tokens
-└── Use when: Need massive context window
+gemini-3-pro-preview
+├── Best for: "Best model in the world for multimodal"
+├── Context: 2M tokens
+├── Cost: Premium
+└── Use when: Need absolute best quality
 
-gemini-1.5-flash
-├── Best for: Fast responses, general use
+gemini-2.5-pro
+├── Best for: State-of-the-art thinking, complex tasks
+├── Context: 2M tokens
+├── Cost: $1.25/$5 per 1M tokens
+└── Use when: Long context, complex reasoning
+
+gemini-2.5-flash
+├── Best for: Fast, balanced performance
 ├── Context: 1M tokens
 ├── Cost: $0.075/$0.30 per 1M tokens
 └── Use when: Speed and cost matter
 
-gemini-1.5-flash-8b
-├── Best for: High volume, simple tasks
+gemini-2.5-flash-lite
+├── Best for: Ultra-fast, lowest cost
 ├── Context: 1M tokens
-├── Cost: $0.0375/$0.15 per 1M tokens
-└── Use when: Lowest cost needed
+├── Cost: $0.04/$0.15 per 1M tokens
+└── Use when: High volume, simple tasks
 ```
 
 ---
@@ -257,24 +281,24 @@ gemini-1.5-flash-8b
 ## Eleven Labs (Voice)
 
 ### Documentation
-- **API Docs**: https://elevenlabs.io/docs/api-reference
-- **Models**: https://elevenlabs.io/docs/api-reference/models
+- **API Docs**: https://elevenlabs.io/docs
+- **Models**: https://elevenlabs.io/docs/models
 - **Pricing**: https://elevenlabs.io/pricing
 
-### Latest Models (Dec 2024)
+### Latest Models (December 2025)
 
 ```typescript
 const ELEVENLABS_MODELS = {
-  // Highest quality
-  multilingualV2: 'eleven_multilingual_v2',
+  // Latest - highest quality (alpha)
+  v3: 'eleven_v3',
 
-  // English optimized
-  turboV2: 'eleven_turbo_v2',
+  // Production ready
+  multilingualV2: 'eleven_multilingual_v2',
   turboV2_5: 'eleven_turbo_v2_5',
 
-  // Low latency
-  flash: 'eleven_flash_v2',
+  // Ultra-low latency
   flashV2_5: 'eleven_flash_v2_5',
+  flashV2: 'eleven_flash_v2', // English only
 } as const;
 ```
 
@@ -289,39 +313,39 @@ const elevenlabs = new ElevenLabsClient({
 // Text to speech
 const audio = await elevenlabs.textToSpeech.convert('voice-id', {
   text: 'Hello, world!',
-  model_id: 'eleven_multilingual_v2',
+  model_id: 'eleven_turbo_v2_5',
   voice_settings: {
     stability: 0.5,
     similarity_boost: 0.75,
   },
 });
 
-// Stream audio
+// Stream audio (for real-time)
 const audioStream = await elevenlabs.textToSpeech.convertAsStream('voice-id', {
   text: 'Streaming audio...',
-  model_id: 'eleven_turbo_v2_5',
+  model_id: 'eleven_flash_v2_5',
 });
 ```
 
 ### Model Selection
 ```
-eleven_multilingual_v2
-├── Best for: Non-English, highest quality
-├── Latency: ~1s
-├── Languages: 29
-└── Use when: Quality over speed
+eleven_v3 (Alpha)
+├── Best for: Highest quality, emotional range
+├── Latency: ~1s+ (not for real-time)
+├── Languages: 74
+└── Use when: Quality over speed, pre-rendered
 
 eleven_turbo_v2_5
-├── Best for: English, low latency
-├── Latency: ~300ms
+├── Best for: Balanced quality and speed
+├── Latency: ~250-300ms
 ├── Languages: 32
-└── Use when: Real-time English apps
+└── Use when: Good quality with reasonable latency
 
 eleven_flash_v2_5
-├── Best for: Lowest latency
-├── Latency: ~75ms
+├── Best for: Real-time, conversational AI
+├── Latency: <75ms
 ├── Languages: 32
-└── Use when: Conversational AI
+└── Use when: Live voice agents, chatbots
 ```
 
 ---
@@ -333,28 +357,28 @@ eleven_flash_v2_5
 - **Models**: https://replicate.com/explore
 - **Pricing**: https://replicate.com/pricing
 
-### Popular Models (Dec 2024)
+### Popular Models (December 2025)
 
 ```typescript
 const REPLICATE_MODELS = {
-  // Image generation
-  flux: 'black-forest-labs/flux-1.1-pro',
-  fluxSchnell: 'black-forest-labs/flux-schnell',
-  sdxl: 'stability-ai/sdxl',
+  // FLUX.2 (Latest - November 2025)
+  flux2Pro: 'black-forest-labs/flux-2-pro',
+  flux2Flex: 'black-forest-labs/flux-2-flex',
+  flux2Dev: 'black-forest-labs/flux-2-dev',
 
-  // Image editing
-  instructPix2Pix: 'timothybrooks/instruct-pix2pix',
+  // FLUX.1 (Still excellent)
+  flux11Pro: 'black-forest-labs/flux-1.1-pro',
+  fluxKontext: 'black-forest-labs/flux-kontext', // Image editing
+  fluxSchnell: 'black-forest-labs/flux-schnell',
 
   // Video
-  stableVideoDiffusion: 'stability-ai/stable-video-diffusion',
+  stableVideo4D: 'stability-ai/sv4d-2.0',
 
   // Audio
   musicgen: 'meta/musicgen',
 
-  // LLMs
-  llama: 'meta/meta-llama-3.1-405b-instruct',
-  mistral: 'mistralai/mistral-7b-instruct-v0.2',
-  codellama: 'meta/codellama-70b-instruct',
+  // LLMs (if needed outside main providers)
+  llama: 'meta/llama-3.2-90b-vision',
 } as const;
 ```
 
@@ -366,8 +390,8 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
 
-// Image generation with Flux
-const output = await replicate.run('black-forest-labs/flux-1.1-pro', {
+// Image generation with FLUX.2
+const output = await replicate.run('black-forest-labs/flux-2-pro', {
   input: {
     prompt: 'A serene mountain landscape at sunset',
     aspect_ratio: '16:9',
@@ -375,37 +399,40 @@ const output = await replicate.run('black-forest-labs/flux-1.1-pro', {
   },
 });
 
-// Run any model
-const prediction = await replicate.predictions.create({
-  version: 'model-version-id',
-  input: { /* model-specific inputs */ },
+// Image editing with Kontext
+const edited = await replicate.run('black-forest-labs/flux-kontext', {
+  input: {
+    image: 'https://...',
+    prompt: 'Change the sky to sunset colors',
+  },
 });
-
-// Stream results
-for await (const event of replicate.stream('model-id', { input })) {
-  process.stdout.write(event.data);
-}
 ```
 
 ### Model Selection
 ```
-flux-1.1-pro
-├── Best for: Highest quality images
-├── Speed: ~10s
-├── Cost: $0.04/image
-└── Use when: Quality matters most
+flux-2-pro
+├── Best for: Highest quality, up to 4MP
+├── Speed: ~6s
+├── Cost: $0.015 + per megapixel
+└── Use when: Professional quality needed
 
-flux-schnell
-├── Best for: Fast image generation
-├── Speed: ~1s
-├── Cost: $0.003/image
+flux-2-flex
+├── Best for: Fine details, typography
+├── Speed: ~22s
+├── Cost: $0.06 per megapixel
+└── Use when: Need precise control
+
+flux-2-dev (Open source)
+├── Best for: Fast generation
+├── Speed: ~2.5s
+├── Cost: $0.012 per megapixel
 └── Use when: Speed over quality
 
-stable-video-diffusion
-├── Best for: Image to video
-├── Speed: ~2min
-├── Cost: ~$0.07/video
-└── Use when: Need motion from stills
+flux-kontext
+├── Best for: Image editing with text
+├── Speed: Variable
+├── Cost: Per run
+└── Use when: Edit existing images
 ```
 
 ---
@@ -414,21 +441,20 @@ stable-video-diffusion
 
 ### Documentation
 - **API Docs**: https://platform.stability.ai/docs/api-reference
-- **Models**: https://platform.stability.ai/docs/models
+- **Models**: https://stability.ai/stable-image
 - **Pricing**: https://platform.stability.ai/pricing
 
-### Latest Models (Dec 2024)
+### Latest Models (December 2025)
 
 ```typescript
 const STABILITY_MODELS = {
   // Image generation
-  sd3: 'sd3-large',
-  sd3Turbo: 'sd3-large-turbo',
-  sdxl: 'stable-diffusion-xl-1024-v1-0',
+  sd35Large: 'sd3.5-large',
+  sd35LargeTurbo: 'sd3.5-large-turbo',
+  sd3Medium: 'sd3-medium',
 
-  // Image editing
-  inpaint: 'stable-diffusion-xl-1024-v1-0', // with mask
-  outpaint: 'stable-diffusion-xl-1024-v1-0',
+  // Video
+  sv4d: 'sv4d-2.0', // Stable Video 4D 2.0
 
   // Upscaling
   upscale: 'esrgan-v1-x2plus',
@@ -438,7 +464,7 @@ const STABILITY_MODELS = {
 ### Usage
 ```typescript
 const response = await fetch(
-  'https://api.stability.ai/v1/generation/sd3-large/text-to-image',
+  'https://api.stability.ai/v2beta/stable-image/generate/sd3',
   {
     method: 'POST',
     headers: {
@@ -449,12 +475,10 @@ const response = await fetch(
       prompt: 'A futuristic city at night',
       output_format: 'webp',
       aspect_ratio: '16:9',
+      model: 'sd3.5-large',
     }),
   }
 );
-
-const data = await response.json();
-const imageBase64 = data.image;
 ```
 
 ---
@@ -466,25 +490,32 @@ const imageBase64 = data.image;
 - **Models**: https://docs.mistral.ai/getting-started/models
 - **Pricing**: https://mistral.ai/technology/#pricing
 
-### Latest Models (Dec 2024)
+### Latest Models (December 2025)
 
 ```typescript
 const MISTRAL_MODELS = {
   // Flagship
-  large: 'mistral-large-latest',
+  large: 'mistral-large-latest',  // Points to 2411
 
-  // Balanced
-  medium: 'mistral-medium-latest',
+  // Medium tier
+  medium: 'mistral-medium-2505',  // Medium 3
 
-  // Fast
-  small: 'mistral-small-latest',
+  // Small/Fast
+  small: 'mistral-small-2506',    // Small 3.2
 
   // Code specialized
-  codestral: 'codestral-latest',
+  codestral: 'codestral-2508',
+  devstral: 'devstral-medium-2507',
 
-  // Open source
-  nemo: 'open-mistral-nemo',
-  mixtral: 'open-mixtral-8x22b',
+  // Reasoning (Magistral)
+  magistralMedium: 'magistral-medium-2507',
+  magistralSmall: 'magistral-small-2507',
+
+  // Audio
+  voxtral: 'voxtral-small-2507',
+
+  // OCR
+  ocr: 'mistral-ocr-2505',
 } as const;
 ```
 
@@ -501,9 +532,27 @@ const response = await client.chat({
 
 // Code completion with Codestral
 const codeResponse = await client.chat({
-  model: 'codestral-latest',
+  model: 'codestral-2508',
   messages: [{ role: 'user', content: 'Write a Python function to...' }],
 });
+```
+
+### Model Selection
+```
+mistral-large-latest (123B params)
+├── Best for: Complex reasoning, knowledge tasks
+├── Context: 128K tokens
+└── Use when: Need high capability
+
+codestral-2508
+├── Best for: Code generation, 80+ languages
+├── Speed: 2.5x faster than predecessor
+└── Use when: Code-focused tasks
+
+magistral-medium-2507
+├── Best for: Multi-step reasoning
+├── Specialty: Transparent chain-of-thought
+└── Use when: Need reasoning traces
 ```
 
 ---
@@ -515,20 +564,22 @@ const codeResponse = await client.chat({
 - **Models**: https://docs.voyageai.com/docs/embeddings
 - **Pricing**: https://www.voyageai.com/pricing
 
-### Latest Models (Dec 2024)
+### Latest Models (December 2025)
 
 ```typescript
 const VOYAGE_MODELS = {
   // General purpose
   large2: 'voyage-large-2',
+  large2Instruct: 'voyage-large-2-instruct',
 
   // Code specialized
   code2: 'voyage-code-2',
+  code3: 'voyage-code-3',
 
   // Multilingual
   multilingual2: 'voyage-multilingual-2',
 
-  // Legal/Finance
+  // Domain specific
   law2: 'voyage-law-2',
   finance2: 'voyage-finance-2',
 } as const;
@@ -543,40 +594,41 @@ const response = await fetch('https://api.voyageai.com/v1/embeddings', {
     Authorization: `Bearer ${process.env.VOYAGE_API_KEY}`,
   },
   body: JSON.stringify({
-    model: 'voyage-large-2',
-    input: ['Your text to embed'],
+    model: 'voyage-code-3',
+    input: ['Your code to embed'],
   }),
 });
 
 const { data } = await response.json();
-const embedding = data[0].embedding; // 1536 dimensions
+const embedding = data[0].embedding;
 ```
 
 ---
 
 ## Quick Reference
 
-### Cost Comparison (per 1M tokens)
+### Cost Comparison (per 1M tokens, approx.)
 
 | Provider | Cheap | Mid | Premium |
 |----------|-------|-----|---------|
-| Anthropic | $0.25 (Haiku) | $3 (Sonnet) | $15 (Opus) |
-| OpenAI | $0.15 (4o-mini) | $2.50 (4o) | $15 (o1) |
-| Google | $0.04 (Flash-8b) | $0.08 (Flash) | $1.25 (Pro) |
+| Anthropic | $0.25 (Haiku) | $3 (Sonnet 4.5) | $5 (Opus 4.5) |
+| OpenAI | $0.15 (4.1-nano) | $2 (4.1) | $15+ (o3) |
+| Google | $0.04 (Flash-lite) | $0.08 (Flash) | $1.25 (Pro) |
 | Mistral | $0.25 (Small) | $2.70 (Medium) | $8 (Large) |
 
 ### Best For Each Task
 
 ```
-Reasoning/Analysis    → Claude Opus, o1, Gemini Pro
-Code Generation       → Claude Sonnet, Codestral, GPT-4o
-Fast Responses        → Claude Haiku, GPT-4o-mini, Gemini Flash
-Long Context          → Gemini Pro (2M), Claude (200K)
-Vision                → GPT-4o, Claude Sonnet, Gemini Pro
-Embeddings            → Voyage, text-embedding-3-small
-Voice Synthesis       → Eleven Labs, OpenAI TTS
-Image Generation      → Flux Pro, DALL-E 3, SD3
-Video Generation      → Stable Video Diffusion, Runway
+Reasoning/Analysis    → Claude Opus 4.5, o3, Gemini 3 Pro
+Code Generation       → Claude Sonnet 4.5, Codestral 2508, GPT-4.1
+Fast Responses        → Claude Haiku, GPT-4.1-mini, Gemini Flash
+Long Context          → Gemini 2.5 Pro (2M), GPT-4.1 (1M), Claude (200K)
+Vision                → GPT-4.1, Claude Sonnet, Gemini 3 Pro
+Embeddings            → Voyage code-3, text-embedding-3-small
+Voice Synthesis       → Eleven Labs v3/flash, OpenAI TTS
+Image Generation      → FLUX.2 Pro, DALL-E 3, SD 3.5
+Video Generation      → Stable Video 4D 2.0, Runway
+Image Editing         → FLUX Kontext, gpt-image-1
 ```
 
 ### Environment Variables Template
@@ -608,3 +660,17 @@ When models update:
 □ Check pricing changes
 □ Update context limits if changed
 ```
+
+---
+
+## Sources
+
+- [Anthropic Models](https://docs.anthropic.com/en/docs/about-claude/models/overview)
+- [OpenAI Models](https://platform.openai.com/docs/models)
+- [OpenAI o3 Announcement](https://openai.com/index/introducing-o3-and-o4-mini/)
+- [GPT-4.1 Announcement](https://openai.com/index/gpt-4-1/)
+- [Google Gemini Models](https://ai.google.dev/gemini-api/docs/models/gemini)
+- [Eleven Labs Models](https://elevenlabs.io/docs/models)
+- [Replicate FLUX.2](https://replicate.com/blog/run-flux-2-on-replicate)
+- [Mistral Models](https://docs.mistral.ai/getting-started/models)
+- [Voyage AI](https://docs.voyageai.com)
