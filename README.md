@@ -110,7 +110,7 @@ Define before you build:
 2. **Atomic todos** with validation criteria and test cases
 3. **Move, don't delete** - Completed todos go to `completed.md` for reference
 
-## Skills Included (27 Skills)
+## Skills Included (28 Skills)
 
 ### Core Skills
 | Skill | Purpose |
@@ -166,6 +166,7 @@ Define before you build:
 | `web-payments.md` | Stripe Checkout, subscriptions, webhooks, customer portal |
 | `reddit-api.md` | Reddit API with PRAW (Python) and Snoowrap (Node.js) |
 | `posthog-analytics.md` | PostHog analytics, event tracking, feature flags, project-specific dashboards |
+| `shopify-apps.md` | Shopify app development - Remix, Admin API, checkout extensions, GDPR compliance |
 
 ## Usage Patterns
 
