@@ -290,6 +290,132 @@ When ALL criteria are TRUE, output:
 
 ---
 
+## Error Classification (Critical for Loops)
+
+**Not all test failures are equal. Claude MUST classify errors before iterating.**
+
+### Error Types
+
+| Type | Examples | Claude Can Fix? | Action |
+|------|----------|-----------------|--------|
+| **Code Error** | Logic bug, wrong algorithm, missing validation | ✅ YES | Continue loop |
+| **Type Error** | Wrong types, missing properties | ✅ YES | Continue loop |
+| **Test Error** | Wrong assertion, incomplete test | ✅ YES | Continue loop |
+| **Access Error** | Missing API key, DB connection refused | ❌ NO | STOP + report |
+| **Permission Error** | File access denied, auth failed | ❌ NO | STOP + report |
+| **Environment Error** | Missing dependency, wrong Node version | ❌ NO | STOP + report |
+| **Network Error** | Service unreachable, timeout | ❌ NO | STOP + report |
+
+### Error Detection Pattern
+
+```markdown
+### Before Each Iteration
+
+1. Run tests
+2. If tests fail, classify the error:
+
+   **Code/Logic Error?** (Claude can fix)
+   - "Expected X but received Y"
+   - "TypeError: cannot read property"
+   - "AssertionError"
+   → CONTINUE LOOP
+
+   **Access/Environment Error?** (Human must fix)
+   - "ECONNREFUSED" (DB not running)
+   - "401 Unauthorized" (bad API key)
+   - "ENOENT" (file/path not found)
+   - "EACCES" (permission denied)
+   - "MODULE_NOT_FOUND" (missing package)
+   - "Connection timeout"
+   → STOP LOOP + OUTPUT BLOCKER
+```
+
+### Blocker Report Format
+
+When Claude detects an access/environment error, output this IMMEDIATELY:
+
+```markdown
+## 🛑 LOOP BLOCKED - Human Action Required
+
+**Error Type:** Access/Environment (cannot be fixed by code changes)
+
+**Error Message:**
+\`\`\`
+ECONNREFUSED 127.0.0.1:5432 - Connection refused
+\`\`\`
+
+**Root Cause:**
+PostgreSQL database is not running or not accessible.
+
+**Required Human Actions:**
+1. [ ] Start PostgreSQL: `brew services start postgresql`
+2. [ ] Verify connection: `psql -U postgres -c "SELECT 1"`
+3. [ ] Check DATABASE_URL in .env matches running instance
+
+**After Fixing:**
+Run `/ralph-loop` again with the same prompt, or tell me to continue.
+
+<promise>BLOCKED ENVIRONMENT</promise>
+```
+
+### Common Blockers Checklist
+
+| Error Pattern | Likely Cause | Human Fix |
+|---------------|--------------|-----------|
+| `ECONNREFUSED :5432` | PostgreSQL not running | `brew services start postgresql` |
+| `ECONNREFUSED :6379` | Redis not running | `brew services start redis` |
+| `ECONNREFUSED :27017` | MongoDB not running | `brew services start mongodb` |
+| `401 Unauthorized` | Invalid/missing API key | Check `.env` file |
+| `403 Forbidden` | Wrong permissions/scopes | Check API key permissions |
+| `ENOENT .env` | Missing .env file | Create from `.env.example` |
+| `MODULE_NOT_FOUND` | Missing npm package | Run `npm install` |
+| `ENOMEM` | Out of memory | Close other apps, increase swap |
+
+### Updated Prompt Template with Error Handling
+
+```bash
+/ralph-loop "
+## Task: [Feature Name]
+
+### Requirements
+- [Requirements here]
+
+### TDD Workflow
+1. Write failing tests
+2. Run tests
+3. **CLASSIFY ERROR:**
+   - Code/logic error → fix and continue
+   - Access/env error → STOP and report blocker
+4. Implement fix
+5. Run tests again
+6. Repeat until pass or blocked
+
+### Completion Criteria
+- [ ] All tests passing
+- [ ] Lint clean
+
+### Exit Conditions
+- SUCCESS: <promise>FEATURE COMPLETE</promise>
+- BLOCKED: <promise>BLOCKED ENVIRONMENT</promise>
+" --completion-promise "FEATURE COMPLETE" --max-iterations 25
+```
+
+### Multiple Completion Promises
+
+Since Ralph only supports one `--completion-promise`, handle blockers in prompt:
+
+```markdown
+### Exit Logic
+IF all tests pass AND lint clean:
+  Output: <promise>COMPLETE</promise>
+
+IF access/environment error detected:
+  Output blocker report (see format above)
+  Output: <promise>COMPLETE</promise>  # Exits loop, user sees blocker report
+```
+
+---
+
 ## When to Use Ralph Loops
 
 ### Good For
