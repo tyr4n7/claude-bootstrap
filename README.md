@@ -298,7 +298,7 @@ Define before you build:
 2. **Atomic todos** with validation criteria and test cases
 3. **Move, don't delete** - Completed todos go to `completed.md` for reference
 
-## Skills Included (39 Skills)
+## Skills Included (40 Skills)
 
 ### Core Skills
 | Skill | Purpose |
@@ -307,6 +307,7 @@ Define before you build:
 | `iterative-development.md` | Ralph Wiggum loops - self-referential TDD iteration until tests pass |
 | `code-review.md` | Mandatory code reviews via `/code-review` before every commit and deploy |
 | `commit-hygiene.md` | Atomic commits, PR size limits, commit thresholds, stacked PRs |
+| `team-coordination.md` | Multi-person projects - shared state, todo claiming, handoffs, conflict prevention |
 | `security.md` | OWASP patterns, secrets management, security testing |
 | `credentials.md` | Centralized API key management from Access.txt |
 | `session-management.md` | Context preservation, tiered summarization, resumability |
