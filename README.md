@@ -709,4 +709,5 @@ Built on learnings from 100+ projects across customer experience management, age
 
 ---
 
-**Need help with your AI initiatives?** [www.leanai.ventures](https://www.leanai.ventures)
+**Need help scaling AI in your org?** [Claude Code & MCP experts](https://leanai.ventures/aiops/claude)
+
