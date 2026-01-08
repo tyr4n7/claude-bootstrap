@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - **Android Java skill** - MVVM architecture, ViewBinding, Espresso testing, GitHub Actions CI (contributed by @tyr4n7)
+- **Android/Flutter auto-detection** - `/initialize-project` now detects Flutter (pubspec.yaml), Android Java (.java files), and Android Kotlin (.kt files), supporting hybrid projects (contributed by @tyr4n7)
 
 ---
 

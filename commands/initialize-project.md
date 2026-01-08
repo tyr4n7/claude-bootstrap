@@ -45,6 +45,16 @@ git remote -v 2>/dev/null
 
 # Check for existing package files
 ls package.json pyproject.toml 2>/dev/null
+
+# Check for Flutter project
+ls pubspec.yaml 2>/dev/null
+
+# Check for Android project
+ls android/build.gradle android/app/build.gradle 2>/dev/null
+
+# Check for native language in Android projects
+find android -name "*.java" -type f 2>/dev/null | head -1
+find android -name "*.kt" -type f 2>/dev/null | head -1
 ```
 
 Based on findings, determine:
@@ -95,14 +105,20 @@ Ask for a brief description (1-2 sentences).
 - Python
 - TypeScript
 - JavaScript (Node)
+- Android Java
+- Android Kotlin
+- Flutter (Dart)
 - Multiple (specify which)
 
-*Auto-detect from package.json or pyproject.toml if present.*
+*Auto-detect from package.json, pyproject.toml, pubspec.yaml, or android/ directory if present.*
 
 ### 3. What type of project?
 - Backend API
 - Frontend Web (React)
 - Mobile App (React Native)
+- Mobile App (Android Native)
+- Mobile App (Flutter)
+- Mobile App (Flutter + Native Android)
 - Full Stack (Backend + Frontend)
 - CLI Tool
 - Library/Package
@@ -193,6 +209,32 @@ cp -r ~/.claude/skills/session-management/ .claude/skills/
 - React Web → copy `typescript/` AND `react-web/`
 - Node Backend → copy `typescript/` AND `nodejs-backend/`
 - Full Stack (Node + React) → copy `typescript/`, `nodejs-backend/`, AND `react-web/`
+
+**For Android/Flutter projects (auto-detect from project structure):**
+
+| Detection | Skills to Copy |
+|-----------|---------------|
+| `pubspec.yaml` exists | `flutter/` |
+| `android/*.java` exists | `android-java/` |
+| `android/*.kt` exists | `android-kotlin/` |
+| Flutter + Java files | `flutter/` + `android-java/` |
+| Flutter + Kotlin files | `flutter/` + `android-kotlin/` |
+| Flutter + Both | `flutter/` + `android-java/` + `android-kotlin/` |
+
+```bash
+# Detect and copy Android/Flutter skills
+if [ -f "pubspec.yaml" ]; then
+  cp -r ~/.claude/skills/flutter/ .claude/skills/
+fi
+
+if find android -name "*.java" -type f 2>/dev/null | head -1 | grep -q .; then
+  cp -r ~/.claude/skills/android-java/ .claude/skills/
+fi
+
+if find android -name "*.kt" -type f 2>/dev/null | head -1 | grep -q .; then
+  cp -r ~/.claude/skills/android-kotlin/ .claude/skills/
+fi
+```
 
 **If AI-first:**
 - Copy `llm-patterns/`
